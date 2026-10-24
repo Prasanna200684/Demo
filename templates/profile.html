@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+
+{% block title %}Profile & Security Settings — TrustVault{% endblock %}
+
+{% block content %}
+<main class="container" style="max-width: 860px;">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">
+        <span>⚙️</span> User Profile & Security
+      </h1>
+      <p class="page-subtitle">Manage your credentials, authentication secrets, and vault avatar</p>
+    </div>
+  </div>
+
+  <!-- User Overview Card -->
+  <div class="card" style="margin-bottom: 2rem; background: linear-gradient(145deg, var(--bg-surface), var(--bg-deep)); border: 1px solid var(--border-subtle);">
+    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1.5rem;">
+      <div style="display: flex; align-items: center; gap: 1.25rem;">
+        <div class="user-avatar-small" style="width: 64px; height: 64px; font-size: 1.8rem; border-width: 2px;">
+          {% if user.avatar and user.avatar != 'default-avatar.png' %}
+            <img src="{{ url_for('static', filename='uploads/avatars/' + user.avatar) }}" alt="Avatar">
+          {% else %}
+            {{ user.username[0]|upper }}
+          {% endif %}
+        </div>
+        <div>
+          <h2 style="font-size: 1.4rem; font-weight: 800; color: #fff;">{{ user.username }}</h2>
+          <div style="font-size: 0.85rem; color: var(--text-secondary);">{{ user.email }}</div>
+          <div style="margin-top: 0.35rem; display: flex; gap: 0.5rem; align-items: center;">
+            <span class="badge badge-{{ user.role }}">Role: {{ user.role|capitalize }}</span>
+            <span style="font-size: 0.78rem; color: var(--text-muted);">Joined {{ user.created_at.strftime('%b %d, %Y') }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 1.5rem; border-left: 1px solid rgba(255, 255, 255, 0.08); padding-left: 1.5rem;">
+        <div>
+          <div style="font-size: 1.4rem; font-weight: 800; color: var(--emerald-400);">{{ uploaded_count }}</div>
+          <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Documents Owned</div>
+        </div>
+        <div>
+          <div style="font-size: 1.4rem; font-weight: 800; color: #67e8f9;">{{ shared_count }}</div>
+          <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Shared With You</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Two Column Layout: Avatar Update & Password Change -->
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 1.5rem;">
+    
+    <!-- Form 1: Update Avatar -->
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">
+          <span>🖼️</span> Update Profile Avatar
+        </h3>
+      </div>
+      <form method="POST" action="{{ url_for('profile') }}" enctype="multipart/form-data">
+        <input type="hidden" name="profile_action" value="update_avatar">
+
+        <div class="form-group">
+          <label for="avatar_file" class="form-label">Choose Avatar Image</label>
+          <input type="file" id="avatar_file" name="avatar_file" class="form-control" accept="image/*" required>
+          <div class="form-help">Formats: JPG, PNG, WEBP, GIF (Max: 5MB)</div>
+        </div>
+
+        <button type="submit" class="btn btn-secondary" style="width: 100%; margin-top: 1rem;">
+          Upload New Avatar
+        </button>
+      </form>
+    </div>
+
+    <!-- Form 2: Change Password -->
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">
+          <span>🔑</span> Update Password
+        </h3>
+      </div>
+      <form method="POST" action="{{ url_for('profile') }}">
+        <input type="hidden" name="profile_action" value="change_password">
+
+        <div class="form-group">
+          <label for="current_password" class="form-label">Current Password</label>
+          <input type="password" id="current_password" name="current_password" class="form-control" placeholder="••••••••" required>
+        </div>
+
+        <div class="form-group">
+          <label for="new_password" class="form-label">New Password</label>
+          <input type="password" id="new_password" name="new_password" class="form-control" placeholder="At least 6 characters" required>
+        </div>
+
+        <div class="form-group">
+          <label for="confirm_password" class="form-label">Confirm New Password</label>
+          <input type="password" id="confirm_password" name="confirm_password" class="form-control" placeholder="Re-enter new password" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">
+          Change Password
+        </button>
+      </form>
+    </div>
+
+  </div>
+</main>
+{% endblock %}

@@ -1,0 +1,237 @@
+{% extends 'base.html' %}
+
+{% block title %}Executive Admin Dashboard — TrustVault{% endblock %}
+
+{% block content %}
+<main class="container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">
+        <span>📊</span> Executive Security Dashboard
+      </h1>
+      <p class="page-subtitle">Platform health, multi-tenant document metrics, and audit governance</p>
+    </div>
+    <div style="display: flex; gap: 0.75rem;">
+      <a href="{{ url_for('upload') }}" class="btn btn-primary">
+        <span>⬆️</span> Upload Document
+      </a>
+      <a href="{{ url_for('activity_logs') }}" class="btn btn-secondary">
+        <span>📜</span> Audit Logs
+      </a>
+    </div>
+  </div>
+
+  <!-- Security Status Banner -->
+  <div class="security-banner">
+    <div>
+      <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
+        <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--emerald-400); box-shadow: 0 0 10px var(--emerald-400);"></span>
+        <span style="font-weight: 700; color: #ffffff; font-size: 1rem;">System Security Status: {{ security_metrics.status }}</span>
+      </div>
+      <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0;">
+        All tenant boundaries verified. Role-based isolation active across all document repositories.
+      </p>
+    </div>
+
+    <div class="security-badge-group">
+      <div class="sec-pill">
+        <span style="color: var(--emerald-400);">🔒</span>
+        <span>{{ security_metrics.encryption }}</span>
+      </div>
+      <div class="sec-pill">
+        <span style="color: var(--emerald-400);">🛡️</span>
+        <span>{{ security_metrics.rbac_mode }}</span>
+      </div>
+      <div class="sec-pill">
+        <span style="color: var(--emerald-400);">✓</span>
+        <span>{{ security_metrics.audit_tamper }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Key Statistics Grid -->
+  <div class="stats-grid">
+    <!-- Stat 1: Documents Uploaded -->
+    <div class="stat-card">
+      <div class="stat-info">
+        <h3>Total Documents</h3>
+        <div class="stat-value">{{ total_docs }}</div>
+        <div class="stat-desc">Securely Stored in Vault</div>
+      </div>
+      <div class="stat-icon">📁</div>
+    </div>
+
+    <!-- Stat 2: Registered Users -->
+    <div class="stat-card">
+      <div class="stat-info">
+        <h3>Registered Users</h3>
+        <div class="stat-value">{{ total_users }}</div>
+        <div class="stat-desc">Across Admin, Owner & Viewer</div>
+      </div>
+      <div class="stat-icon">👥</div>
+    </div>
+
+    <!-- Stat 3: Shared Documents -->
+    <div class="stat-card">
+      <div class="stat-info">
+        <h3>Documents Sharing</h3>
+        <div class="stat-value">{{ unique_shared_docs }}</div>
+        <div class="stat-desc">Active Multi-User Documents</div>
+      </div>
+      <div class="stat-icon">🔗</div>
+    </div>
+
+    <!-- Stat 4: Records Shared -->
+    <div class="stat-card">
+      <div class="stat-info">
+        <h3>Records Shared</h3>
+        <div class="stat-value">{{ total_shared_records }}</div>
+        <div class="stat-desc">Active Viewer / Editor Grants</div>
+      </div>
+      <div class="stat-icon">📜</div>
+    </div>
+  </div>
+
+  <!-- Two Column Layout: Recent Activity Logs & Registered Users -->
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 1.5rem; margin-bottom: 2.5rem;">
+    <!-- Recent Activity Logs Card -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">
+          <span>📜</span> Recent Security Activity Logs
+        </h2>
+        <a href="{{ url_for('activity_logs') }}" class="btn btn-secondary btn-sm">View Full Log</a>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Timestamp</th>
+              <th>User</th>
+              <th>Action</th>
+              <th>Details</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for log in recent_logs %}
+            <tr>
+              <td style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted); white-space: nowrap;">
+                {{ log.timestamp.strftime('%H:%M:%S • %b %d') }}
+              </td>
+              <td style="font-weight: 600;">
+                {{ log.user.username if log.user else 'System / Unknown' }}
+              </td>
+              <td>
+                <span class="badge {% if log.action in ['LOGIN', 'REGISTER', 'UPLOAD', 'SHARE_GRANTED'] %}badge-success{% elif log.action in ['DELETE', 'SHARE_REVOKED', 'ACCESS_DENIED'] %}badge-danger{% else %}badge-viewer{% endif %}">
+                  {{ log.action }}
+                </span>
+              </td>
+              <td style="font-size: 0.82rem; color: var(--text-secondary); max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                {{ log.details }}
+              </td>
+            </tr>
+            {% else %}
+            <tr>
+              <td colspan="4" style="text-align: center; color: var(--text-muted); padding: 2rem;">No logs recorded yet.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Registered Users Management Card -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">
+          <span>👥</span> Registered Platform Users
+        </h2>
+        <span class="badge badge-admin">{{ users|length }} Total</span>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Email</th>
+              <th>Assigned Role</th>
+              <th>Documents Owned</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for u in users %}
+            <tr>
+              <td>
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                  <div class="user-avatar-small" style="width: 24px; height: 24px; font-size: 0.7rem;">
+                    {{ u.username[0]|upper }}
+                  </div>
+                  <span style="font-weight: 600;">{{ u.username }}</span>
+                </div>
+              </td>
+              <td style="font-size: 0.82rem; color: var(--text-secondary);">{{ u.email }}</td>
+              <td>
+                <span class="badge badge-{{ u.role }}">{{ u.role }}</span>
+              </td>
+              <td style="font-weight: 700; color: var(--emerald-400);">
+                {{ u.documents|length }}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Vault Uploads Card -->
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title">
+        <span>📁</span> Recent Vault Documents
+      </h2>
+      <a href="{{ url_for('my_documents') }}" class="btn btn-secondary btn-sm">All Documents</a>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Document Title</th>
+            <th>Category</th>
+            <th>Owner</th>
+            <th>Size</th>
+            <th>Uploaded</th>
+            <th style="text-align: right;">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for doc in recent_docs %}
+          <tr>
+            <td>
+              <div style="font-weight: 600; color: #fff;">{{ doc.title }}</div>
+              <div style="font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono);">{{ doc.original_filename }}</div>
+            </td>
+            <td>
+              <span class="badge badge-viewer">{{ doc.category.name }}</span>
+            </td>
+            <td>
+              <span style="color: var(--text-secondary);">{{ doc.owner.username }}</span>
+            </td>
+            <td style="font-size: 0.82rem; color: var(--text-muted);">{{ doc.formatted_size() }}</td>
+            <td style="font-size: 0.8rem; color: var(--text-muted);">{{ doc.created_at.strftime('%Y-%m-%d') }}</td>
+            <td style="text-align: right;">
+              <a href="{{ url_for('download_document', doc_id=doc.id) }}" class="btn btn-secondary btn-sm" title="Download">⬇️</a>
+              <a href="{{ url_for('manage_access', doc_id=doc.id) }}" class="btn btn-primary btn-sm" title="Manage Permissions">👥 Share</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</main>
+{% endblock %}

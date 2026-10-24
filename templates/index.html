@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+
+{% block title %}TrustVault — Secure Document Sharing & Smarter Access{% endblock %}
+
+{% block content %}
+<main class="container">
+  <!-- Hero Section -->
+  <section style="text-align: center; padding: 3.5rem 1rem 3rem; max-width: 900px; margin: 0 auto;">
+    <div style="display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(16, 185, 129, 0.12); border: 1px solid var(--border-subtle); padding: 0.35rem 1rem; border-radius: var(--radius-full); font-size: 0.82rem; color: var(--emerald-400); font-weight: 600; margin-bottom: 1.5rem;">
+      <span>🔒 Multi-Tenant Zero-Trust Governance</span>
+    </div>
+
+    <h1 style="font-size: clamp(2.2rem, 5vw, 3.6rem); font-weight: 800; line-height: 1.15; letter-spacing: -0.03em; margin-bottom: 1.25rem;">
+      Secure Sharing. <br>
+      <span style="background: linear-gradient(135deg, #34d399, #10b981, #059669); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+        Smarter Access.
+      </span> <br>
+      Verifiable Accountability.
+    </h1>
+
+    <p style="font-size: 1.15rem; color: var(--text-secondary); max-width: 720px; margin: 0 auto 2.25rem; line-height: 1.7;">
+      TrustVault is an enterprise document-sharing ecosystem designed for confidential data. Control granular read and edit permissions with strict 3-tier Role-Based Access Control and tamper-evident audit logs.
+    </p>
+
+    <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+      <a href="{{ url_for('register') }}" class="btn btn-primary" style="padding: 0.85rem 1.75rem; font-size: 1rem;">
+        Get Started Free ➔
+      </a>
+      <a href="{{ url_for('login') }}" class="btn btn-secondary" style="padding: 0.85rem 1.75rem; font-size: 1rem;">
+        Sign In to Vault
+      </a>
+    </div>
+  </section>
+
+  <!-- Pre-configured Demo Accounts Card -->
+  <section class="card" style="max-width: 850px; margin: 0 auto 3rem; background: linear-gradient(145deg, var(--bg-surface), var(--bg-deep)); border: 1px solid rgba(16, 185, 129, 0.35); box-shadow: var(--emerald-glow-sm);">
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+      <div style="font-weight: 700; color: #ffffff; font-size: 1.05rem; display: flex; align-items: center; gap: 0.5rem;">
+        <span>⚡</span> Instant Role Test Accounts
+      </div>
+      <span class="badge badge-success">READY OUT OF THE BOX</span>
+    </div>
+    <p style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 1.25rem;">
+      Experience the role restrictions immediately. Click "Sign In" and use any of these seeded credentials:
+    </p>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem;">
+      <div style="background: var(--bg-deep); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-subtle);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+          <span style="font-weight: 700; color: #fff;">1. Administrator</span>
+          <span class="badge badge-admin">Full Control</span>
+        </div>
+        <div style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--emerald-400);">admin / admin123</div>
+        <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.35rem;">Full dashboard, all activity logs, security metrics, user management.</p>
+      </div>
+
+      <div style="background: var(--bg-deep); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-subtle);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+          <span style="font-weight: 700; color: #fff;">2. Document Owner</span>
+          <span class="badge badge-owner">Owner</span>
+        </div>
+        <div style="font-family: var(--font-mono); font-size: 0.8rem; color: #67e8f9;">owner_sarah / owner123</div>
+        <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.35rem;">Uploads files, grants and revokes viewer access, deletes own docs.</p>
+      </div>
+
+      <div style="background: var(--bg-deep); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-subtle);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+          <span style="font-weight: 700; color: #fff;">3. Viewer</span>
+          <span class="badge badge-viewer">Restricted</span>
+        </div>
+        <div style="font-family: var(--font-mono); font-size: 0.8rem; color: #d1d5db;">viewer_alex / viewer123</div>
+        <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.35rem;">Access only to documents shared with them. Cannot delete or alter access.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Key Architecture Features Grid -->
+  <section style="margin-bottom: 4rem;">
+    <div style="text-align: center; margin-bottom: 2.5rem;">
+      <h2 style="font-size: 1.8rem; font-weight: 700; color: #fff;">Architected for High-Stakes Security</h2>
+      <p style="color: var(--text-secondary); font-size: 0.95rem; margin-top: 0.35rem;">Designed specifically to prevent data leaks, permission overreaches, and untracked file transfers.</p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+      <div class="card">
+        <div class="stat-icon" style="margin-bottom: 1rem;">🛡️</div>
+        <h3 style="font-size: 1.15rem; font-weight: 700; color: #fff; margin-bottom: 0.5rem;">3-Tier Role Enforcement</h3>
+        <p style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6;">
+          Admin, Document Owner, and Viewer roles maintain rigid boundaries. Document owners retain complete sovereignty over who can inspect or download their records.
+        </p>
+      </div>
+
+      <div class="card">
+        <div class="stat-icon" style="margin-bottom: 1rem;">📜</div>
+        <h3 style="font-size: 1.15rem; font-weight: 700; color: #fff; margin-bottom: 0.5rem;">Verifiable Audit Trails</h3>
+        <p style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6;">
+          Every login, logout, document upload, permission grant, access revocation, and download is permanently recorded with timestamps and network metadata.
+        </p>
+      </div>
+
+      <div class="card">
+        <div class="stat-icon" style="margin-bottom: 1rem;">🔍</div>
+        <h3 style="font-size: 1.15rem; font-weight: 700; color: #fff; margin-bottom: 0.5rem;">Granular Search & Filters</h3>
+        <p style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6;">
+          Quickly discover documents by category, upload date range, document owner, or keyword while respecting underlying tenant permissions.
+        </p>
+      </div>
+    </div>
+  </section>
+</main>
+{% endblock %}

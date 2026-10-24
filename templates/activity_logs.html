@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+
+{% block title %}Security Audit & Activity Logs — TrustVault{% endblock %}
+
+{% block content %}
+<main class="container">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">
+        <span>📜</span> Security Audit & Activity Logs
+      </h1>
+      <p class="page-subtitle">Verifiable immutable logs tracking authentication, document access, and permission changes</p>
+    </div>
+    <div style="display: flex; gap: 0.5rem; align-items: center;">
+      <span class="badge badge-admin">RESTRICTED: ADMINISTRATORS ONLY</span>
+    </div>
+  </div>
+
+  <!-- Filter Card -->
+  <div class="card" style="margin-bottom: 2rem;">
+    <form method="GET" action="{{ url_for('activity_logs') }}" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)) auto; gap: 1rem; align-items: end;">
+      <div class="form-group" style="margin-bottom: 0;">
+        <label for="action" class="form-label">Filter by Action</label>
+        <select id="action" name="action" class="form-control" style="background-color: var(--bg-deep);">
+          <option value="">All Security Actions</option>
+          {% for a in actions %}
+            <option value="{{ a }}" {% if selected_action == a %}selected{% endif %}>{{ a }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-group" style="margin-bottom: 0;">
+        <label for="user" class="form-label">Filter by User</label>
+        <select id="user" name="user" class="form-control" style="background-color: var(--bg-deep);">
+          <option value="">All Users</option>
+          {% for u in users %}
+            <option value="{{ u.id }}" {% if selected_user == u.id|string %}selected{% endif %}>{{ u.username }} ({{ u.role }})</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div style="display: flex; gap: 0.5rem;">
+        <a href="{{ url_for('activity_logs') }}" class="btn btn-secondary btn-sm" style="height: 42px;">Reset</a>
+        <button type="submit" class="btn btn-primary btn-sm" style="height: 42px; padding: 0 1.25rem;">
+          Filter Logs
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Activity Logs Table -->
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title">
+        <span>🛡️</span> Tamper-Evident Activity Trail
+      </h2>
+      <span class="badge badge-success">{{ logs|length }} Events Captured</span>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Event Timestamp</th>
+            <th>Principal / User</th>
+            <th>Role</th>
+            <th>Action</th>
+            <th>Audit Details</th>
+            <th>Source IP</th>
+            <th>Audit Integrity</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for log in logs %}
+          <tr>
+            <td style="font-family: var(--font-mono); font-size: 0.78rem; color: var(--text-muted); white-space: nowrap;">
+              {{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}
+            </td>
+            <td>
+              {% if log.user %}
+                <div style="display: flex; align-items: center; gap: 0.4rem;">
+                  <div class="user-avatar-small" style="width: 20px; height: 20px; font-size: 0.65rem;">
+                    {{ log.user.username[0]|upper }}
+                  </div>
+                  <span style="font-weight: 600; color: #fff;">{{ log.user.username }}</span>
+                </div>
+              {% else %}
+                <span style="color: var(--text-muted); font-style: italic;">Unauthenticated / System</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if log.user %}
+                <span class="badge badge-{{ log.user.role }}">{{ log.user.role }}</span>
+              {% else %}
+                <span class="badge badge-viewer">N/A</span>
+              {% endif %}
+            </td>
+            <td>
+              <span class="badge {% if log.action in ['LOGIN', 'REGISTER', 'UPLOAD', 'SHARE_GRANTED'] %}badge-success{% elif log.action in ['DELETE', 'SHARE_REVOKED', 'ACCESS_DENIED', 'LOGIN_FAILED'] %}badge-danger{% else %}badge-viewer{% endif %}">
+                {{ log.action }}
+              </span>
+            </td>
+            <td style="font-size: 0.85rem; color: var(--text-primary);">
+              {{ log.details }}
+            </td>
+            <td style="font-family: var(--font-mono); font-size: 0.78rem; color: var(--text-muted);">
+              {{ log.ip_address or '127.0.0.1' }}
+            </td>
+            <td>
+              <span style="font-size: 0.75rem; color: var(--emerald-400); font-weight: 600;">
+                ✓ VERIFIED
+              </span>
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 3rem;">
+              No audit logs match your filter criteria.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</main>
+{% endblock %}

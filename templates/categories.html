@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}Document Categories — TrustVault{% endblock %}
+
+{% block content %}
+<main class="container">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">
+        <span>🏷️</span> Document Categories
+      </h1>
+      <p class="page-subtitle">Organize and browse documents categorized by operational departments and sensitivity</p>
+    </div>
+    <a href="{{ url_for('upload') }}" class="btn btn-primary">
+      <span>⬆️</span> Upload to Category
+    </a>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem;">
+    {% for item in cat_stats %}
+    <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
+      <div>
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <div class="stat-icon" style="width: 38px; height: 38px; font-size: 1.1rem;">
+              {% if item.category.name == 'Legal & Compliance' %}⚖️
+              {% elif item.category.name == 'Financial Reports' %}💹
+              {% elif item.category.name == 'Executive & Board' %}🏛️
+              {% elif item.category.name == 'Engineering & Tech' %}💻
+              {% elif item.category.name == 'Human Resources' %}👥
+              {% else %}🔒{% endif %}
+            </div>
+            <h3 style="font-size: 1.15rem; font-weight: 700; color: #fff;">{{ item.category.name }}</h3>
+          </div>
+          <span class="badge badge-success">{{ item.count }} Doc(s)</span>
+        </div>
+
+        <p style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 1.5rem;">
+          {{ item.category.description }}
+        </p>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.05);">
+        <span style="font-size: 0.8rem; color: var(--text-muted);">Confidential partition</span>
+        <a href="{{ url_for('category_detail', cat_id=item.category.id) }}" class="btn btn-secondary btn-sm">
+          Browse Documents ➔
+        </a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</main>
+{% endblock %}

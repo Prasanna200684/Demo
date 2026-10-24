@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+
+{% block title %}Upload Confidential Document — TrustVault{% endblock %}
+
+{% block content %}
+<main class="container" style="max-width: 800px;">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">
+        <span>⬆️</span> Upload Document
+      </h1>
+      <p class="page-subtitle">Encrypt and store confidential files with custom category and sharing permissions</p>
+    </div>
+    <a href="{{ url_for('my_documents') }}" class="btn btn-secondary">
+      Back to My Documents
+    </a>
+  </div>
+
+  <div class="card" style="padding: 2rem;">
+    <form method="POST" action="{{ url_for('upload') }}" enctype="multipart/form-data">
+      <!-- File Selector Dropzone -->
+      <div class="form-group">
+        <label class="form-label">Select Document File</label>
+        <label for="document_file" class="dropzone" id="dropzone_container">
+          <div class="dropzone-icon">📁</div>
+          <div style="font-weight: 700; color: #fff; font-size: 1.05rem;" id="file_upload_label">
+            Click to choose a file or drag & drop here
+          </div>
+          <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.4rem;">
+            Supported formats: PDF, DOCX, DOC, XLSX, TXT, CSV, PNG, JPG, ZIP (Max: 64MB)
+          </div>
+        </label>
+        <input type="file" id="document_file" name="document_file" style="display: none;" required>
+      </div>
+
+      <!-- Document Metadata -->
+      <div class="form-group">
+        <label for="title" class="form-label">Document Title</label>
+        <input type="text" id="title" name="title" class="form-control" placeholder="e.g. FY2026 Executive Security Audit" required>
+      </div>
+
+      <div class="form-group">
+        <label for="category_id" class="form-label">Document Category</label>
+        <select id="category_id" name="category_id" class="form-control" style="background-color: var(--bg-deep);" required>
+          <option value="" disabled selected>Select category classification...</option>
+          {% for cat in categories %}
+            <option value="{{ cat.id }}">{{ cat.name }} ({{ cat.description }})</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="description" class="form-label">Description / Confidentiality Memo (Optional)</label>
+        <textarea id="description" name="description" class="form-control" rows="3" placeholder="Brief note explaining the document contents or sensitivity classification..."></textarea>
+      </div>
+
+      <!-- Initial Viewer Access Section -->
+      <div style="background: var(--bg-deep); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1.25rem; margin-bottom: 1.5rem;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
+          <div>
+            <div style="font-weight: 700; color: #ffffff; font-size: 0.95rem;">
+              <span>👥</span> Grant Initial Viewer Access
+            </div>
+            <div style="font-size: 0.78rem; color: var(--text-muted);">
+              Select registered users who should immediately receive Viewer permissions upon upload.
+            </div>
+          </div>
+          <span class="badge badge-success">Optional</span>
+        </div>
+
+        {% if viewers %}
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem; margin-top: 0.75rem;">
+          {% for v in viewers %}
+          <label style="display: flex; align-items: center; gap: 0.6rem; background: var(--bg-surface); padding: 0.6rem 0.85rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); cursor: pointer; transition: border-color var(--transition-fast);">
+            <input type="checkbox" name="viewers" value="{{ v.id }}" style="accent-color: var(--emerald-500); width: 16px; height: 16px;">
+            <div style="display: flex; align-items: center; gap: 0.4rem; overflow: hidden;">
+              <span style="font-size: 0.85rem; font-weight: 600; color: #fff;">{{ v.username }}</span>
+              <span class="badge badge-{{ v.role }}" style="font-size: 0.65rem;">{{ v.role }}</span>
+            </div>
+          </label>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div style="font-size: 0.82rem; color: var(--text-muted);">No other registered users available to share with.</div>
+        {% endif %}
+      </div>
+
+      <!-- Action Button -->
+      <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.85rem; font-size: 1rem;">
+        🔒 Encrypt & Upload to TrustVault ➔
+      </button>
+    </form>
+  </div>
+</main>
+{% endblock %}

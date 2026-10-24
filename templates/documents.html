@@ -1,0 +1,243 @@
+{% extends 'base.html' %}
+
+{% block title %}My Documents — TrustVault{% endblock %}
+
+{% block content %}
+<main class="container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">
+        <span>📁</span> Document Repository
+      </h1>
+      <p class="page-subtitle">Manage confidential files, configure sharing rules, and inspect shared access</p>
+    </div>
+    <div style="display: flex; gap: 0.75rem;">
+      <a href="{{ url_for('upload') }}" class="btn btn-primary">
+        <span>⬆️</span> Upload New Document
+      </a>
+      <a href="{{ url_for('search_documents') }}" class="btn btn-secondary">
+        <span>🔍</span> Filter & Search
+      </a>
+    </div>
+  </div>
+
+  <!-- Role Notice / Status -->
+  <div style="display: flex; align-items: center; justify-content: space-between; background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 0.85rem 1.25rem; margin-bottom: 2rem; flex-wrap: wrap; gap: 0.75rem;">
+    <div style="display: flex; align-items: center; gap: 0.75rem;">
+      <span class="badge badge-{{ current_user.role }}">Your Role: {{ current_user.role|capitalize }}</span>
+      <span style="font-size: 0.88rem; color: var(--text-secondary);">
+        {% if current_user.is_admin %}
+          Full system authority: You can manage all documents, users, and audit logs.
+        {% elif current_user.role == 'owner' %}
+          Document Owner: You have full control over files you upload, including granting/revoking access and deletion.
+        {% else %}
+          Viewer: You can view and download documents shared with you by owners.
+        {% endif %}
+      </span>
+    </div>
+    <div style="font-size: 0.82rem; color: var(--emerald-400); font-weight: 600;">
+      {{ my_docs|length }} Owned • {{ shared_docs|length }} Shared With You
+    </div>
+  </div>
+
+  <!-- SECTION 1: MY UPLOADED DOCUMENTS -->
+  <div class="card" style="margin-bottom: 2.5rem;">
+    <div class="card-header">
+      <h2 class="card-title">
+        <span>🗂️</span> My Uploaded Documents
+      </h2>
+      <span class="badge badge-owner">{{ my_docs|length }} Documents</span>
+    </div>
+
+    {% if my_docs %}
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Document</th>
+            <th>Category</th>
+            <th>File Size</th>
+            <th>Uploaded Date</th>
+            <th>Sharing Status</th>
+            <th style="text-align: right;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for doc in my_docs %}
+          <tr>
+            <td>
+              <div style="font-weight: 700; color: #ffffff; font-size: 0.95rem;">{{ doc.title }}</div>
+              <div style="font-size: 0.78rem; color: var(--text-muted); font-family: var(--font-mono);">
+                📄 {{ doc.original_filename }}
+              </div>
+              {% if doc.description %}
+              <div style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 0.2rem;">
+                {{ doc.description }}
+              </div>
+              {% endif %}
+            </td>
+            <td>
+              <span class="badge badge-viewer">{{ doc.category.name }}</span>
+            </td>
+            <td style="font-size: 0.85rem; color: var(--text-secondary);">{{ doc.formatted_size() }}</td>
+            <td style="font-size: 0.82rem; color: var(--text-muted); white-space: nowrap;">
+              {{ doc.created_at.strftime('%Y-%m-%d') }}
+            </td>
+            <td>
+              {% if doc.permissions %}
+                <span class="badge badge-success">Shared with {{ doc.permissions|length }} user(s)</span>
+              {% else %}
+                <span class="badge badge-viewer">Private (Owner Only)</span>
+              {% endif %}
+            </td>
+            <td style="text-align: right; white-space: nowrap;">
+              <a href="{{ url_for('download_document', doc_id=doc.id) }}" class="btn btn-secondary btn-sm" title="Download Document">
+                ⬇️ Download
+              </a>
+              <a href="{{ url_for('manage_access', doc_id=doc.id) }}" class="btn btn-primary btn-sm" title="Manage Permissions">
+                👥 Access
+              </a>
+              <form action="{{ url_for('delete_document', doc_id=doc.id) }}" method="POST" style="display: inline-block;" onsubmit="return confirm('Are you sure you want to permanently delete \'{{ doc.title }}\'? This cannot be undone.');">
+                <button type="submit" class="btn btn-danger btn-sm" title="Delete Document">
+                  🗑️
+                </button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 3rem 1.5rem;">
+      <div style="font-size: 2.5rem; margin-bottom: 0.75rem;">📤</div>
+      <h3 style="font-size: 1.15rem; font-weight: 700; color: #fff; margin-bottom: 0.4rem;">No Documents Uploaded Yet</h3>
+      <p style="font-size: 0.88rem; color: var(--text-secondary); max-width: 450px; margin: 0 auto 1.5rem;">
+        You haven't uploaded any documents yet. Upload a confidential document to manage access and share securely.
+      </p>
+      <a href="{{ url_for('upload') }}" class="btn btn-primary">
+        ⬆️ Upload Your First Document
+      </a>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- SECTION 2: DOCUMENTS SHARED WITH ME -->
+  <div class="card" style="margin-bottom: 2.5rem;">
+    <div class="card-header">
+      <h2 class="card-title">
+        <span>🔗</span> Documents Shared With Me
+      </h2>
+      <span class="badge badge-success">{{ shared_docs|length }} Accessible</span>
+    </div>
+
+    {% if shared_docs %}
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Document</th>
+            <th>Category</th>
+            <th>Shared By (Owner)</th>
+            <th>Your Access Level</th>
+            <th>File Size</th>
+            <th style="text-align: right;">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for doc in shared_docs %}
+          <tr>
+            <td>
+              <div style="font-weight: 700; color: #ffffff;">{{ doc.title }}</div>
+              <div style="font-size: 0.78rem; color: var(--text-muted); font-family: var(--font-mono);">
+                📄 {{ doc.original_filename }}
+              </div>
+            </td>
+            <td>
+              <span class="badge badge-viewer">{{ doc.category.name }}</span>
+            </td>
+            <td>
+              <div style="display: flex; align-items: center; gap: 0.4rem;">
+                <div class="user-avatar-small" style="width: 20px; height: 20px; font-size: 0.65rem;">
+                  {{ doc.owner.username[0]|upper }}
+                </div>
+                <span style="font-size: 0.85rem; color: var(--text-secondary);">{{ doc.owner.username }}</span>
+              </div>
+            </td>
+            <td>
+              <span class="badge badge-success">
+                👁️ {{ perm_map.get(doc.id, 'viewer')|upper }}
+              </span>
+            </td>
+            <td style="font-size: 0.85rem; color: var(--text-secondary);">{{ doc.formatted_size() }}</td>
+            <td style="text-align: right;">
+              <a href="{{ url_for('download_document', doc_id=doc.id) }}" class="btn btn-primary btn-sm">
+                ⬇️ Download
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 2.5rem 1.5rem; color: var(--text-muted);">
+      <p style="margin: 0; font-size: 0.9rem;">No documents have been shared with your account yet.</p>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- SECTION 3 (ADMIN ONLY): ALL SYSTEM DOCUMENTS -->
+  {% if current_user.is_admin %}
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title">
+        <span>🛡️</span> All Vault Documents (Admin Super-View)
+      </h2>
+      <span class="badge badge-admin">Administrator Overseer</span>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Title</th>
+            <th>Owner</th>
+            <th>Category</th>
+            <th>Size</th>
+            <th>Uploaded</th>
+            <th style="text-align: right;">Admin Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for doc in all_system_docs %}
+          <tr>
+            <td style="font-family: var(--font-mono); color: var(--text-muted);">#{{ doc.id }}</td>
+            <td>
+              <span style="font-weight: 600; color: #fff;">{{ doc.title }}</span>
+              <div style="font-size: 0.75rem; color: var(--text-muted);">{{ doc.original_filename }}</div>
+            </td>
+            <td>
+              <span class="badge badge-owner">{{ doc.owner.username }}</span>
+            </td>
+            <td><span class="badge badge-viewer">{{ doc.category.name }}</span></td>
+            <td>{{ doc.formatted_size() }}</td>
+            <td style="font-size: 0.8rem; color: var(--text-muted);">{{ doc.created_at.strftime('%Y-%m-%d') }}</td>
+            <td style="text-align: right; white-space: nowrap;">
+              <a href="{{ url_for('download_document', doc_id=doc.id) }}" class="btn btn-secondary btn-sm">⬇️</a>
+              <a href="{{ url_for('manage_access', doc_id=doc.id) }}" class="btn btn-primary btn-sm">👥 Access</a>
+              <form action="{{ url_for('delete_document', doc_id=doc.id) }}" method="POST" style="display: inline-block;" onsubmit="return confirm('Admin override: permanently delete document?');">
+                <button type="submit" class="btn btn-danger btn-sm">🗑️</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endif %}
+</main>
+{% endblock %}

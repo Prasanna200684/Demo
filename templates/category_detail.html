@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ category.name }} Documents — TrustVault{% endblock %}
+
+{% block content %}
+<main class="container">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">
+        <span>🏷️</span> {{ category.name }}
+      </h1>
+      <p class="page-subtitle">{{ category.description }}</p>
+    </div>
+    <div style="display: flex; gap: 0.75rem;">
+      <a href="{{ url_for('categories_view') }}" class="btn btn-secondary">
+        Back to Categories
+      </a>
+      <a href="{{ url_for('upload') }}" class="btn btn-primary">
+        <span>⬆️</span> Upload to {{ category.name }}
+      </a>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title">
+        <span>📁</span> Documents in this Category
+      </h2>
+      <span class="badge badge-success">{{ documents|length }} Available</span>
+    </div>
+
+    {% if documents %}
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Document</th>
+            <th>Owner</th>
+            <th>Size</th>
+            <th>Uploaded Date</th>
+            <th style="text-align: right;">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for doc in documents %}
+          <tr>
+            <td>
+              <div style="font-weight: 700; color: #fff;">{{ doc.title }}</div>
+              <div style="font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono);">
+                {{ doc.original_filename }}
+              </div>
+            </td>
+            <td>
+              <span style="font-size: 0.88rem; color: var(--text-secondary);">{{ doc.owner.username }}</span>
+            </td>
+            <td style="font-size: 0.85rem; color: var(--text-muted);">{{ doc.formatted_size() }}</td>
+            <td style="font-size: 0.82rem; color: var(--text-muted);">{{ doc.created_at.strftime('%Y-%m-%d') }}</td>
+            <td style="text-align: right; white-space: nowrap;">
+              <a href="{{ url_for('download_document', doc_id=doc.id) }}" class="btn btn-primary btn-sm">
+                ⬇️ Download
+              </a>
+              {% if current_user.is_admin or doc.owner_id == current_user.id %}
+              <a href="{{ url_for('manage_access', doc_id=doc.id) }}" class="btn btn-secondary btn-sm">
+                👥 Access
+              </a>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 3rem 1rem; color: var(--text-muted);">
+      <p style="font-size: 1rem; color: #fff; font-weight: 600; margin-bottom: 0.25rem;">No documents in this category yet</p>
+      <p style="font-size: 0.85rem; margin-bottom: 1.5rem;">Be the first to upload a document to this category.</p>
+      <a href="{{ url_for('upload') }}" class="btn btn-primary">
+        ⬆️ Upload Document Now
+      </a>
+    </div>
+    {% endif %}
+  </div>
+</main>
+{% endblock %}

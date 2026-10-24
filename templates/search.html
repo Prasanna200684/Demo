@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+
+{% block title %}Search & Filter Documents — TrustVault{% endblock %}
+
+{% block content %}
+<main class="container">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">
+        <span>🔍</span> Document Discovery & Search
+      </h1>
+      <p class="page-subtitle">Locate confidential files across date ranges, categories, titles, and owners</p>
+    </div>
+  </div>
+
+  <!-- Search Filter Form Card -->
+  <div class="card" style="margin-bottom: 2rem;">
+    <form method="GET" action="{{ url_for('search_documents') }}">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.25rem;">
+        <!-- Keyword -->
+        <div class="form-group" style="margin-bottom: 0;">
+          <label for="q" class="form-label">Document Name / Keyword</label>
+          <input type="text" id="q" name="q" class="form-control" placeholder="Search by title, filename or description..." value="{{ query }}">
+        </div>
+
+        <!-- Category -->
+        <div class="form-group" style="margin-bottom: 0;">
+          <label for="category" class="form-label">Category</label>
+          <select id="category" name="category" class="form-control" style="background-color: var(--bg-deep);">
+            <option value="">All Categories</option>
+            {% for cat in categories %}
+              <option value="{{ cat.id }}" {% if selected_category == cat.id|string %}selected{% endif %}>
+                {{ cat.name }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- Owner -->
+        <div class="form-group" style="margin-bottom: 0;">
+          <label for="owner" class="form-label">Document Owner</label>
+          <select id="owner" name="owner" class="form-control" style="background-color: var(--bg-deep);">
+            <option value="">All Owners</option>
+            {% for o in owners %}
+              <option value="{{ o.id }}" {% if selected_owner == o.id|string %}selected{% endif %}>
+                {{ o.username }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- Date From -->
+        <div class="form-group" style="margin-bottom: 0;">
+          <label for="date_from" class="form-label">Uploaded From</label>
+          <input type="date" id="date_from" name="date_from" class="form-control" value="{{ date_from }}">
+        </div>
+
+        <!-- Date To -->
+        <div class="form-group" style="margin-bottom: 0;">
+          <label for="date_to" class="form-label">Uploaded To</label>
+          <input type="date" id="date_to" name="date_to" class="form-control" value="{{ date_to }}">
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 0.75rem; justify-content: flex-end;">
+        <a href="{{ url_for('search_documents') }}" class="btn btn-secondary btn-sm">Reset Filters</a>
+        <button type="submit" class="btn btn-primary btn-sm" style="padding: 0.5rem 1.25rem;">
+          Apply Filters
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Search Results -->
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title">
+        <span>📄</span> Search Results
+      </h2>
+      <span class="badge badge-success">{{ results|length }} Document(s) Found</span>
+    </div>
+
+    {% if results %}
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Document</th>
+            <th>Category</th>
+            <th>Owner</th>
+            <th>File Size</th>
+            <th>Date Uploaded</th>
+            <th style="text-align: right;">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for doc in results %}
+          <tr>
+            <td>
+              <div style="font-weight: 700; color: #fff;">{{ doc.title }}</div>
+              <div style="font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono);">
+                {{ doc.original_filename }}
+              </div>
+            </td>
+            <td>
+              <span class="badge badge-viewer">{{ doc.category.name }}</span>
+            </td>
+            <td>
+              <span style="font-size: 0.88rem; color: var(--text-secondary);">{{ doc.owner.username }}</span>
+            </td>
+            <td style="font-size: 0.85rem; color: var(--text-muted);">{{ doc.formatted_size() }}</td>
+            <td style="font-size: 0.82rem; color: var(--text-muted); white-space: nowrap;">
+              {{ doc.created_at.strftime('%Y-%m-%d') }}
+            </td>
+            <td style="text-align: right; white-space: nowrap;">
+              <a href="{{ url_for('download_document', doc_id=doc.id) }}" class="btn btn-primary btn-sm">
+                ⬇️ Download
+              </a>
+              {% if current_user.is_admin or doc.owner_id == current_user.id %}
+              <a href="{{ url_for('manage_access', doc_id=doc.id) }}" class="btn btn-secondary btn-sm">
+                👥 Access
+              </a>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 3rem 1rem; color: var(--text-muted);">
+      <div style="font-size: 2.2rem; margin-bottom: 0.5rem;">🔍</div>
+      <p style="font-size: 1rem; color: #fff; font-weight: 600; margin-bottom: 0.25rem;">No matching documents found</p>
+      <p style="font-size: 0.85rem; margin: 0;">Try broadening your search keywords or resetting your filter criteria.</p>
+    </div>
+    {% endif %}
+  </div>
+</main>
+{% endblock %}

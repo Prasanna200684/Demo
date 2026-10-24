@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Account — TrustVault{% endblock %}
+
+{% block content %}
+<main class="container" style="display: flex; align-items: center; justify-content: center; min-height: 80vh;">
+  <div class="card" style="width: 100%; max-width: 480px; padding: 2rem;">
+    <div style="text-align: center; margin-bottom: 2rem;">
+      <div class="brand-icon" style="margin: 0 auto 1rem; width: 44px; height: 44px; font-size: 1.3rem;">🛡️</div>
+      <h1 style="font-size: 1.5rem; font-weight: 800; color: #fff;">Register Account</h1>
+      <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">Join TrustVault for secure document sharing and governance</p>
+    </div>
+
+    <form method="POST" action="{{ url_for('register') }}">
+      <div class="form-group">
+        <label for="username" class="form-label">Username</label>
+        <input type="text" id="username" name="username" class="form-control" placeholder="Choose a username" required>
+      </div>
+
+      <div class="form-group">
+        <label for="email" class="form-label">Work Email</label>
+        <input type="email" id="email" name="email" class="form-control" placeholder="name@company.com" required>
+      </div>
+
+      <div class="form-group">
+        <label for="role" class="form-label">Select Account Role</label>
+        <select id="role" name="role" class="form-control" style="background-color: var(--bg-deep);">
+          <option value="owner" selected>Document Owner (Can upload, delete, and share permissions)</option>
+          <option value="viewer">Viewer (Can only view/download shared documents)</option>
+          <option value="admin">Administrator (Complete system & audit access)</option>
+        </select>
+        <div class="form-help">
+          Document Owners can upload confidential files and grant or revoke access to Viewers.
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="password" class="form-label">Password</label>
+        <input type="password" id="password" name="password" class="form-control" placeholder="At least 6 characters" required>
+      </div>
+
+      <div class="form-group">
+        <label for="confirm_password" class="form-label">Confirm Password</label>
+        <input type="password" id="confirm_password" name="confirm_password" class="form-control" placeholder="Re-enter password" required>
+      </div>
+
+      <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem; padding: 0.75rem;">
+        Complete Registration ➔
+      </button>
+    </form>
+
+    <div style="text-align: center; margin-top: 1.75rem; padding-top: 1.25rem; border-top: 1px solid rgba(255, 255, 255, 0.05); font-size: 0.88rem; color: var(--text-secondary);">
+      Already have an account? 
+      <a href="{{ url_for('login') }}" style="font-weight: 600; color: var(--emerald-400); margin-left: 0.25rem;">Sign In</a>
+    </div>
+  </div>
+</main>
+{% endblock %}

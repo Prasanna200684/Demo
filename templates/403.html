@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block title %}403 Forbidden — TrustVault Security Violation{% endblock %}
+
+{% block content %}
+<main class="container" style="display: flex; align-items: center; justify-content: center; min-height: 70vh; text-align: center;">
+  <div class="card" style="max-width: 500px; padding: 3rem 2rem;">
+    <div style="font-size: 3.5rem; margin-bottom: 1rem;">🛑</div>
+    <div class="badge badge-danger" style="margin-bottom: 1rem; font-size: 0.8rem;">403 ACCESS DENIED</div>
+    <h1 style="font-size: 1.8rem; font-weight: 800; color: #fff; margin-bottom: 0.75rem;">Authorization Violation</h1>
+    <p style="color: var(--text-secondary); font-size: 0.92rem; line-height: 1.6; margin-bottom: 2rem;">
+      You do not possess the required role permissions (Admin or Document Owner) to execute this operation or view this partition. This security exception has been logged.
+    </p>
+    <div style="display: flex; gap: 0.75rem; justify-content: center;">
+      <a href="{{ url_for('my_documents') }}" class="btn btn-primary">
+        Return to My Documents
+      </a>
+      <a href="{{ url_for('index') }}" class="btn btn-secondary">
+        Home
+      </a>
+    </div>
+  </div>
+</main>
+{% endblock %}
